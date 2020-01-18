@@ -102,6 +102,8 @@ void VariantParser<DoCheck>::parse_attribute(const std::string& key, PieceType& 
         std::stringstream ss(it->second);
         if (ss >> token && (idx = pieceToChar.find(toupper(token))) != std::string::npos)
             target = PieceType(idx);
+        else if (DoCheck)
+            std::cerr << key << " - Invalid piece type: " << token << std::endl;
     }
 }
 
@@ -124,7 +126,11 @@ Variant* VariantParser<DoCheck>::parse(Variant* v) {
             if (isalpha(keyValue->second.at(0)))
                 v->add_piece(pieceInfo.first, keyValue->second.at(0));
             else
+            {
+                if (DoCheck && keyValue->second.at(0) != '-')
+                    std::cerr << pieceInfo.second->name << " - Invalid letter: " << keyValue->second.at(0) << std::endl;
                 v->remove_piece(pieceInfo.first);
+            }
         }
     }
     parse_attribute("variantTemplate", v->variantTemplate);
@@ -146,6 +152,8 @@ Variant* VariantParser<DoCheck>::parse(Variant* v) {
         std::stringstream ss(it_prom->second);
         while (ss >> token && ((idx = v->pieceToChar.find(toupper(token))) != std::string::npos))
             v->promotionPieceTypes.insert(PieceType(idx));
+        if (DoCheck && idx == std::string::npos && token != '-')
+            std::cerr << "promotionPieceTypes - Invalid piece type: " << token << std::endl;
     }
     parse_attribute("sittuyinPromotion", v->sittuyinPromotion);
     // promotion limit
@@ -156,17 +164,21 @@ Variant* VariantParser<DoCheck>::parse(Variant* v) {
         size_t idx;
         std::stringstream ss(it_prom_limit->second);
         while (ss >> token && (idx = v->pieceToChar.find(toupper(token))) != std::string::npos && ss >> token && ss >> v->promotionLimit[idx]) {}
+        if (DoCheck && idx == std::string::npos)
+            std::cerr << "promotionLimit - Invalid piece type: " << token << std::endl;
     }
     // promoted piece types
     const auto& it_prom_pt = config.find("promotedPieceType");
     if (it_prom_pt != config.end())
     {
         char token;
-        size_t idx, idx2;
+        size_t idx = 0, idx2 = 0;
         std::stringstream ss(it_prom_pt->second);
         while (   ss >> token && (idx = v->pieceToChar.find(toupper(token))) != std::string::npos && ss >> token
                && ss >> token && (idx2 = (token == '-' ? 0 : v->pieceToChar.find(toupper(token)))) != std::string::npos)
             v->promotedPieceType[idx] = PieceType(idx2);
+        if (DoCheck && (idx == std::string::npos || idx2 == std::string::npos))
+            std::cerr << "promotedPieceType - Invalid piece type: " << token << std::endl;
     }
     parse_attribute("piecePromotionOnCapture", v->piecePromotionOnCapture);
     parse_attribute("mandatoryPawnPromotion", v->mandatoryPawnPromotion);
@@ -225,8 +237,10 @@ Variant* VariantParser<DoCheck>::parse(Variant* v) {
         char token;
         size_t idx;
         std::stringstream ss(it_ext->second);
-        while (ss >> token && ((idx = v->pieceToChar.find(toupper(token))) != std::string::npos || token == '*'))
-            v->extinctionPieceTypes.insert(PieceType(token == '*' ? 0 : idx));
+        while (ss >> token && (idx = token == '*' ? size_t(ALL_PIECES) : v->pieceToChar.find(toupper(token))) != std::string::npos)
+            v->extinctionPieceTypes.insert(PieceType(idx));
+        if (DoCheck && idx == std::string::npos)
+            std::cerr << "extinctionPieceTypes - Invalid piece type: " << token << std::endl;
     }
     parse_attribute("flagPiece", v->flagPiece, v->pieceToChar);
     parse_attribute("whiteFlag", v->whiteFlag);

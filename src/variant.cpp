@@ -937,6 +937,8 @@ void VariantMap::parse(std::string path) {
             std::cerr << "Variant template '" << variant_template << "' does not exist." << std::endl;
         else
         {
+            if (DoCheck)
+                std::cerr << "Parsing variant: " << variant << std::endl;
             Variant* v = !variant_template.empty() ? VariantParser<DoCheck>(attribs).parse(new Variant(*variants.find(variant_template)->second))
                                                    : VariantParser<DoCheck>(attribs).parse();
             if (v->maxFile <= FILE_MAX && v->maxRank <= RANK_MAX)
