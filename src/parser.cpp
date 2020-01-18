@@ -85,13 +85,15 @@ namespace {
 
 } // namespace
 
-template <class T> void VariantParser::parse_attribute(const std::string& key, T& target) {
+template <bool DoCheck>
+template <class T> void VariantParser<DoCheck>::parse_attribute(const std::string& key, T& target) {
     const auto& it = config.find(key);
     if (it != config.end())
         set(it->second, target);
 }
 
-void VariantParser::parse_attribute(const std::string& key, PieceType& target, std::string pieceToChar) {
+template <bool DoCheck>
+void VariantParser<DoCheck>::parse_attribute(const std::string& key, PieceType& target, std::string pieceToChar) {
     const auto& it = config.find(key);
     if (it != config.end())
     {
@@ -103,14 +105,16 @@ void VariantParser::parse_attribute(const std::string& key, PieceType& target, s
     }
 }
 
-Variant* VariantParser::parse() {
+template <bool DoCheck>
+Variant* VariantParser<DoCheck>::parse() {
     Variant* v = new Variant();
     v->reset_pieces();
     v->promotionPieceTypes = {};
     return parse(v);
 }
 
-Variant* VariantParser::parse(Variant* v) {
+template <bool DoCheck>
+Variant* VariantParser<DoCheck>::parse(Variant* v) {
     // piece types
     for (const auto& pieceInfo : pieceMap)
     {
@@ -233,3 +237,8 @@ Variant* VariantParser::parse(Variant* v) {
     parse_attribute("countingRule", v->countingRule);
     return v;
 }
+
+template Variant* VariantParser<true>::parse();
+template Variant* VariantParser<false>::parse();
+template Variant* VariantParser<true>::parse(Variant* v);
+template Variant* VariantParser<false>::parse(Variant* v);

@@ -33,6 +33,7 @@ public:
     }
 };
 
+template <bool DoCheck>
 class VariantParser {
 public:
     VariantParser(const Config& c) : config (c) {};
