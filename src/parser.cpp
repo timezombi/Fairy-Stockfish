@@ -196,6 +196,7 @@ Variant* VariantParser<DoCheck>::parse(Variant* v) {
     parse_attribute("castlingRookPiece", v->castlingRookPiece, v->pieceToChar);
     parse_attribute("kingType", v->kingType, v->pieceToChar);
     parse_attribute("checking", v->checking);
+    parse_attribute("dropChecks", v->dropChecks);
     parse_attribute("mustCapture", v->mustCapture);
     parse_attribute("mustDrop", v->mustDrop);
     parse_attribute("pieceDrops", v->pieceDrops);
@@ -249,6 +250,14 @@ Variant* VariantParser<DoCheck>::parse(Variant* v) {
     parse_attribute("checkCounting", v->checkCounting);
     parse_attribute("connectN", v->connectN);
     parse_attribute("countingRule", v->countingRule);
+    // Report invalid options
+    if (DoCheck)
+    {
+        const std::set<std::string>& parsedKeys = config.get_comsumed_keys();
+        for (const auto& it : config)
+            if (parsedKeys.find(it.first) == parsedKeys.end())
+                std::cerr << "Invalid option: " << it.first << std::endl;
+    }
     return v;
 }
 

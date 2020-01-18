@@ -29,8 +29,14 @@ public:
         constexpr bool PrintOptions = false; // print config options?
         if (PrintOptions)
             std::cout << s << std::endl;
+        consumedKeys.insert(s);
         return std::map<std::string, std::string>::find(s);
     }
+    const std::set<std::string>& get_comsumed_keys() {
+        return consumedKeys;
+    }
+private:
+    std::set<std::string> consumedKeys = {};
 };
 
 template <bool DoCheck>
