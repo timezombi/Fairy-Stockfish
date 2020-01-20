@@ -23,6 +23,7 @@
 #include "types.h"
 #include "piece.h"
 #include "variant.h"
+#include "uci.h"
 
 Value PieceValue[PHASE_NB][PIECE_NB] = {
   { VALUE_ZERO, PawnValueMg, KnightValueMg, BishopValueMg, RookValueMg, QueenValueMg,
@@ -178,5 +179,18 @@ void init(const Variant* v) {
       psq[~pc][SQ_NONE] = -psq[pc][SQ_NONE];
   }
 }
+
+void init_cur() { init(variants.find(Options["UCI_Variant"])->second); }
+
+TUNE(SetRange(0, 1000),
+     PieceValue[MG][PAWN], PieceValue[EG][PAWN],
+     SetRange(0, 5000),
+     PieceValue[MG][KNIGHT], PieceValue[EG][KNIGHT],
+     PieceValue[MG][BISHOP], PieceValue[EG][BISHOP],
+     PieceValue[MG][ROOK], PieceValue[EG][ROOK],
+     PieceValue[MG][QUEEN], PieceValue[EG][QUEEN],
+     PieceValue[MG][ARCHBISHOP], PieceValue[EG][ARCHBISHOP],
+     PieceValue[MG][CHANCELLOR], PieceValue[EG][CHANCELLOR],
+     init_cur);
 
 } // namespace PSQT
