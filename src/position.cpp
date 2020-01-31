@@ -1918,6 +1918,16 @@ bool Position::is_immediate_game_end(Value& result, int ply) const {
       result = mate_in(ply);
       return true;
   }
+  // Checkless
+  if (var->checkless && checkers())
+  {
+      for (const auto& mevasion : MoveList<EVASIONS>(*this))
+          if (legal(mevasion))
+          {
+              result = mate_in(ply);
+              return true;
+          }
+  }
 
   return false;
 }
